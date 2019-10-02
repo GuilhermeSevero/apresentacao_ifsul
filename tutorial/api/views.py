@@ -9,7 +9,7 @@ from .serializers import UsuarioSerilizer
 @api_view(['GET', 'POST'])
 def usuario_list(request):
     if request.method == 'GET':
-        usuario = Usuario.object.all()
+        usuario = Usuario.objects.all()
         serializer = UsuarioSerilizer(usuario, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
