@@ -1,4 +1,3 @@
-from django.db.models import Count, Max
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
