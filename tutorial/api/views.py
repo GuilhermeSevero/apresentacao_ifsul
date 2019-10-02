@@ -1,18 +1,18 @@
-from rest_framework import status
-from rest_framework.decorators import api_view
+from django.http import Http404
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 
-from .models import Usuario
-from .serializers import UsuarioSerilizer
+from .serializers import UsuarioSerilizer, Usuario
 
 
-@api_view(['GET', 'POST'])
-def usuario_list(request):
-    if request.method == 'GET':
+class UsuarioList(APIView):
+    def get(self, request, format=None):
         usuario = Usuario.objects.all()
         serializer = UsuarioSerilizer(usuario, many=True)
         return Response(serializer.data)
-    elif request.method == 'POST':
+
+    def post(self, request, format=None):
         serializer = UsuarioSerilizer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -20,22 +20,28 @@ def usuario_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def usuario_detail(request, pk):
-    try:
-        usuario = Usuario.objects.get(pk=pk)
-    except Usuario.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+class UsuarioDetail(APIView):
 
-    if request.method == 'GET':
+    def get_object(self, pk):
+        try:
+            return Usuario.objects.get(pk=pk)
+        except Usuario.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        usuario = self.get_object(pk)
         serializer = UsuarioSerilizer(usuario)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif request.method == 'PUT':
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        usuario = self.get_object(pk)
         serializer = UsuarioSerilizer(usuario, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    elif request.method == 'DELETE':
+
+    def delete(self, request, pk, format=None):
+        usuario = self.get_object(pk)
         usuario.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
