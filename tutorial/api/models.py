@@ -25,3 +25,9 @@ class Usuario(models.Model):
             delta = datetime.date.today() - self.data_nascimento
             return math.trunc(delta.days / 365)
         return None
+
+
+class Partida(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='partidas')
+    vencedor = models.BooleanField(blank=True, null=False, default=False)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=False)
