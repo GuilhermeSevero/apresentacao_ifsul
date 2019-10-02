@@ -34,4 +34,12 @@ class PartidaSerializer(serializers.ModelSerializer):
             .order_by('usuario') \
             .annotate(qtd_vitorias=Count('*')) \
             .order_by('-qtd_vitorias')
-        return usuarios
+        return RankingSerializer(usuarios, many=True).data
+
+
+class RankingSerializer(serializers.Serializer):
+    usuario = serializers.SerializerMethodField(method_name='get_usuario')
+    qtd_vitorias = serializers.IntegerField(read_only=True)
+
+    def get_usuario(self, data):
+        return UsuarioSerializer(Usuario.objects.get(pk=data.get('usuario', None))).data
